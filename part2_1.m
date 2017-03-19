@@ -41,6 +41,7 @@ f_f3=getFmesure(table3)
 
 
 end 
+
 function c = useWard(x)
 Z = linkage(x,'ward','euclidean');
 c = cluster(Z,'maxclust',10);
@@ -83,6 +84,7 @@ c = 2/(m^2-m);
 D = abs(pdist(fea_mean));
 f = c*sum(sum(D));
 end
+
 function f = getRandIndex (targets, predicts)
 cm = crosstab(predicts,targets);
 f = value/sum(sum(cm));
