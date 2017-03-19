@@ -25,6 +25,9 @@ end
 
 % plot image
 x = [1:2:31];
-plot(x,accuracy_all);
+plot(x,accuracy_all,'b-o');
+title('Accuracy for different k in KNN classifier')
+xlabel('k')
+ylabel('Accuracy')
 
 

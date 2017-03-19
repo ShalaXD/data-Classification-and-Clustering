@@ -1,49 +1,53 @@
-function part2_2()
-    close all;
-    clear all; 
-    load('dim4data.mat');
-
-    separation_index_all = [];
-    rand_index_all = [];
-    f_measure_all = [];
-    for k = 2:15
-        %for each k generate 3 indexes
-        result = kmeans(new_fea,k);
-        separation_index = get_separated_index(new_fea,result,k);
-        rand_index = get_rand_index(gnd,result);
-        table1 = crosstab(result,gnd);
-        f_measure = getFmesure(table1);
-        % put 3 indexes together
-        separation_index_all = [separation_index_all,separation_index];
-        rand_index_all = [rand_index_all,rand_index];
-        f_measure_all = [f_measure_all,f_measure];
-    end
-    separation_index_all;
-    rand_index_all;
-    f_measure_all;
-    
-    % plot indexes for different clusters
-    x = 2:15;
-    figure
-    subplot(3,1,1);
-    plot(x,separation_index_all,'b-o')
-    title('separation index for k')
-    xlabel('k clusters')
-    ylabel('separation index')
-
-    subplot(3,1,2);
-    plot(x,rand_index_all,'b-o')
-    title('rand index for k')
-    xlabel('k clusters')
-    ylabel('rand index')  
-
-    subplot(3,1,3);
-    plot(x,f_measure_all,'b-o')
-    title('f-measure for k')
-    xlabel('k clusters')
-    ylabel('f-measure')
+function part2_3_b()
+close all;
+clear all; 
+load('dim4data.mat');
+%% cluster the data by setting the max membership value to be 1 and the rest to be 0
+options = [2.0 NaN NaN 0];
+[centers,U] = fcm(new_fea,10,options);
+Q = max(U);
+for i = 1:size(new_fea,1)
+    U(U == Q(i)) = 1;
 end
+U(U ~= 1) = 0;
+[ROW,COL] = find(U == 1);
+result = ROW';
+%% evaluate clustering results
+rand_index1 = get_rand_index(gnd,result);%rand index
+table1 = crosstab(result,gnd);
+f_measure1 = getFmesure(table1); %f-measure
+separation_index1 = get_separated_index(new_fea,result,10);%seperation index
 
+%% compare with kmeans while k = 10
+k=10;
+result2 = kmeans(new_fea,k);
+separation_index2 = get_separated_index(new_fea,result2,k);
+rand_index2 = get_rand_index(gnd,result2);
+table2 = crosstab(result2,gnd);
+f_measure2 = getFmesure(table2);
+
+%% plot bar graph 
+x = [separation_index1,rand_index1,f_measure1; separation_index2,rand_index2,f_measure2]; 
+
+figure(1);
+subplot(1,3,1);
+bar(x(:,1),0.2);
+set(gca,'XTickLabel',{'Fuzzy C-Means','K-Means'});
+ylabel('Separation Index');
+
+subplot(1,3,2);
+bar(x(:,2),0.2);
+set(gca,'XTickLabel',{'Fuzzy C-Means','K-Means'});
+ylabel('Rand Index');
+
+subplot(1,3,3);
+bar(x(:,3),0.2);
+set(gca,'XTickLabel',{'Fuzzy C-Means','K-Means'});
+ylabel('F_Measure');
+
+
+
+end
 
 function si = get_separated_index(new_fea,result,k)
     dist_sum = 0;
